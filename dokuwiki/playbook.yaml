@@ -1,0 +1,13 @@
+---
+- hosts: all
+  name: Install required software
+  become: yes
+  tasks:
+    - name: Install packages 
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        name:
+          - apache2
+          - php
+          - php-xml
