@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  name: Install required software
+  name: Add required software
   become: yes
   tasks:
     - name: Install packages 
@@ -11,3 +11,10 @@
           - apache2
           - php
           - php-xml
+        
+    - name: Unarchive a file that needs to be downloaded (added in 2.0)
+      ansible.builtin.unarchive:
+        src: https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
+        dest: /var/www/html
+        remote_src: yes
+        mode: u+rwx,g+rwx,o+rwx

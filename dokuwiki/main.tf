@@ -1,3 +1,4 @@
+
 variable "credentials_file" { 
   default = "/home/qui6130/sincere-signal-361922-f506e6f9b1d8.json" 
 }
@@ -35,7 +36,7 @@ resource "google_compute_network" "vpc_network" {
 }
 
 resource "google_compute_instance" "vm_instance" {
-  name         = "dokuwiki-istance"
+  name         = "cis-91"
   machine_type = "e2-micro"
 
   boot_disk {
