@@ -12,7 +12,7 @@
           - php
           - php-xml
         
-    - name: Unarchive a file that needs to be downloaded (added in 2.0)
+    - name: Unarchive dokuwiki
       ansible.builtin.unarchive:
         src: https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
         dest: /var/www/html

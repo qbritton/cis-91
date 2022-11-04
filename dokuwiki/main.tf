@@ -50,6 +50,22 @@ resource "google_compute_instance" "vm_instance" {
     access_config {
     }
   }
+
+  service_account {
+    email  = google_service_account.lab08-service-account.email
+    scopes = ["cloud-platform"]
+  }
+}
+
+resource "google_service_account" "lab08-service-account" {
+  account_id   = "lab08-service-account"
+  display_name = "lab08-service-account"
+  description = "Service account for dokuwiki"
+}
+
+resource "google_project_iam_member" "project_member" {
+  role = "roles/owner"
+  member = "serviceAccount:${google_service_account.lab08-service-account.email}"
 }
 
 resource "google_compute_firewall" "default-firewall" {
