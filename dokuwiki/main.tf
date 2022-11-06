@@ -51,6 +51,11 @@ resource "google_compute_instance" "vm_instance" {
     }
   }
 
+  attached_disk {
+    source = google_compute_disk.dokuwiki-data.self_link
+    device_name = "dokuwiki-data"
+  }
+
   service_account {
     email  = google_service_account.lab08-service-account.email
     scopes = ["cloud-platform"]
@@ -76,6 +81,15 @@ resource "google_compute_firewall" "default-firewall" {
     ports = ["22", "80"]
   }
   source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_disk" "dokuwiki-data" {
+  name  = "dokuwiki-data"
+  type  = "pd-ssd"
+  labels = {
+    environment = "dev"
+  }
+  size = "100"
 }
 
 output "external-ip" {

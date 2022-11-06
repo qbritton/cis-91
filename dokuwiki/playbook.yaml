@@ -11,10 +11,28 @@
           - apache2
           - php
           - php-xml
-        
+
+    - name: Create data directory
+      file:
+        path: /var/www/html
+        state: directory
+
     - name: Unarchive dokuwiki
       ansible.builtin.unarchive:
         src: https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
         dest: /var/www/html
         remote_src: yes
         mode: u+rwx,g+rwx,o+rwx
+
+    - name: Create a ext4 filesystem
+      community.general.filesystem:
+        fstype: ext4
+        dev: /dev/disk/by-id/google-dokuwiki-data
+
+    - name: Mount persistent disk
+      ansible.posix.mount:
+        path: /var/www
+        src: /dev/disk/by-id/google-dokuwiki-data
+        fstype: ext4
+        state: mounted
+        
