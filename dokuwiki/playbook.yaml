@@ -16,12 +16,14 @@
       ansible.builtin.file:
         path: /var/www/html
         state: directory
+        recurse: yes
         mode: '0755'
 
     - name: Unarchive dokuwiki
       ansible.builtin.unarchive:
         src: https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
         dest: /var/www/html
+        creates: /var/www/html/dokuwiki
         remote_src: yes
         mode: u+rwx,g+rwx,o+rwx
 
