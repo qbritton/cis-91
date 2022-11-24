@@ -8,11 +8,11 @@ variable "project" {
 }
 
 variable "region" {
-  default = "us-central1"
+  default = "us-west1"
 }
 
 variable "zone" {
-  default = "us-central1-c"
+  default = "us-west1-a"
 }
 
 terraform {
@@ -32,7 +32,7 @@ provider "google" {
 }
 
 resource "google_compute_network" "vpc_network" {
-  name = "dokuwiki-network"
+  name = "dokuwiki-network-1"
 }
 
 resource "google_compute_instance" "vm_instance" {
@@ -52,25 +52,25 @@ resource "google_compute_instance" "vm_instance" {
   }
 
   attached_disk {
-    source = google_compute_disk.dokuwiki-data.self_link
-    device_name = "dokuwiki-data"
+    source = google_compute_disk.dokuwiki-data-1.self_link
+    device_name = "dokuwiki-data-1"
   }
 
   service_account {
-    email  = google_service_account.lab08-service-account.email
+    email  = google_service_account.dokuwiki-service-account.email
     scopes = ["cloud-platform"]
   }
 }
 
-resource "google_service_account" "lab08-service-account" {
-  account_id   = "lab08-service-account"
-  display_name = "lab08-service-account"
+resource "google_service_account" "dokuwiki-service-account" {
+  account_id   = "dokuwiki-service-account"
+  display_name = "dokuwiki-service-account"
   description = "Service account for dokuwiki"
 }
 
 resource "google_project_iam_member" "project_member" {
   role = "roles/owner"
-  member = "serviceAccount:${google_service_account.lab08-service-account.email}"
+  member = "serviceAccount:${google_service_account.dokuwiki-service-account.email}"
 }
 
 resource "google_compute_firewall" "default-firewall" {
@@ -83,17 +83,18 @@ resource "google_compute_firewall" "default-firewall" {
   source_ranges = ["0.0.0.0/0"]
 }
 
-resource "google_compute_disk" "dokuwiki-data" {
-  name  = "dokuwiki-data"
+resource "google_compute_disk" "dokuwiki-data-1" {
+  name  = "dokuwiki-data-1"
   type  = "pd-ssd"
+  zone = "us-west1-a"
   labels = {
     environment = "dev"
   }
   size = "100"
 }
 
-resource "google_storage_bucket" "quinns-cloud-bucket" {
-  name = "quinns-cloud-bucket"
+resource "google_storage_bucket" "quinns-dokuwiki-bucket" {
+  name = "quinns-dokuwiki-bucket"
   location = "US"
 
    lifecycle_rule {

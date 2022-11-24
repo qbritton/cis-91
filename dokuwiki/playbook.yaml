@@ -14,6 +14,25 @@
 
     - name: Create a directory if it does not exist
       ansible.builtin.file:
+        path: /var/www
+        state: directory
+        recurse: yes
+        mode: '0755'
+
+    - name: Create a ext4 filesystem
+      community.general.filesystem:
+        fstype: ext4
+        dev: /dev/disk/by-id/google-dokuwiki-data-1
+
+    - name: Mount persistent disk
+      ansible.posix.mount:
+        path: /var/www
+        src: /dev/disk/by-id/google-dokuwiki-data-1
+        fstype: ext4
+        state: mounted
+
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
         path: /var/www/html
         state: directory
         recurse: yes
@@ -23,21 +42,8 @@
       ansible.builtin.unarchive:
         src: https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
         dest: /var/www/html
-        creates: /var/www/html/dokuwiki
         remote_src: yes
         mode: u+rwx,g+rwx,o+rwx
-
-    - name: Create a ext4 filesystem
-      community.general.filesystem:
-        fstype: ext4
-        dev: /dev/disk/by-id/google-dokuwiki-data
-
-    - name: Mount persistent disk
-      ansible.posix.mount:
-        path: /var/www
-        src: /dev/disk/by-id/google-dokuwiki-data
-        fstype: ext4
-        state: mounted
 
     - name: Copy bucket backup executable
       ansible.builtin.copy:
