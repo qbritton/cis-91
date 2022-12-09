@@ -35,6 +35,7 @@ resource "google_compute_network" "vpc_network" {
   name = "cis91-network"
 }
 
+# Multiple Webserver instances
 resource "google_compute_instance" "webservers" {
   count        = 3
   name         = "web${count.index}"
@@ -52,19 +53,81 @@ resource "google_compute_instance" "webservers" {
     }
   }
 
+  tags = ["web"]
   labels = {
-    role: "web"
+    name: "web${count.index}"
   }
 }
 
+# Database instance
+resource "google_compute_instance" "vm_instance" {
+  name         = "db"
+  machine_type = "e2-micro"
+  tags = ["db"]
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+    }
+  }
+
+  network_interface {
+    network = google_compute_network.vpc_network.name
+    access_config {
+    }
+  }
+
+  attached_disk {
+    source = google_compute_disk.database.self_link
+    device_name = "database"
+  }
+}
+
+# Attached disk for database
+resource "google_compute_disk" "database" {
+  name  = "lab09"
+  type  = "pd-ssd"
+  labels = {
+    environment = "dev"
+  }
+}
+
+# Global firewall
+resource "google_compute_firewall" "global-firewall" {
+  name = "global-firewall"
+  network = google_compute_network.vpc_network.name
+  allow {
+    protocol = "tcp"
+    ports = ["22"]
+  }
+  source_ranges = ["0.0.0.0/0"]
+}
+
+# webservers Firewall
 resource "google_compute_firewall" "default-firewall" {
   name = "default-firewall"
   network = google_compute_network.vpc_network.name
   allow {
     protocol = "tcp"
-    ports = ["22", "80", "3000", "5000"]
+    ports = ["80"]
   }
   source_ranges = ["0.0.0.0/0"]
+  target_tags = ["web"]
+}
+
+#Database firewall
+resource "google_compute_firewall" "db-firewall" {
+  name = "db-firewall"
+  network = google_compute_network.vpc_network.name
+  allow {
+    protocol = "icmp"
+  }
+  allow {
+    protocol = "tcp"
+    ports = ["5432"]
+  }
+  source_ranges = ["0.0.0.0/0"]
+  target_tags = ["db"]
 }
 
 # Health Check
@@ -132,6 +195,10 @@ resource "google_compute_global_forwarding_rule" "default" {
   port_range            = "80"
   target                = google_compute_target_http_proxy.default.id
   ip_address            = google_compute_global_address.default.address
+}
+
+output "database-ip" {
+  value = google_compute_instance.vm_instance.network_interface[0].access_config[0].nat_ip
 }
 
 output "external-ip" {

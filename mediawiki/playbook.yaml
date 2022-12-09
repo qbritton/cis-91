@@ -6,7 +6,7 @@
     - mediawiki-vars.yaml
   tags:
     - install
-  tasks:
+  tasks:  
     - name: Install packages 
       ansible.builtin.apt:
         update_cache: yes
