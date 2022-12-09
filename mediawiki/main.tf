@@ -92,39 +92,31 @@ resource "google_compute_disk" "database" {
   }
 }
 
-# Global firewall
-resource "google_compute_firewall" "global-firewall" {
-  name = "global-firewall"
-  network = google_compute_network.vpc_network.name
-  allow {
-    protocol = "tcp"
-    ports = ["22"]
-  }
-  source_ranges = ["0.0.0.0/0"]
-}
+# Web firewall
+resource "google_compute_firewall" "rules" {
+  project     = "sincere-signal-361922"
+  name        = "my-firewall-rule"
+  network     = google_compute_network.vpc_network.name
+  description = "Creates firewall rule targeting tagged instances"
 
-# webservers Firewall
-resource "google_compute_firewall" "default-firewall" {
-  name = "default-firewall"
-  network = google_compute_network.vpc_network.name
   allow {
     protocol = "tcp"
-    ports = ["80"]
+    ports    = ["22","80"]
   }
   source_ranges = ["0.0.0.0/0"]
   target_tags = ["web"]
 }
 
-#Database firewall
-resource "google_compute_firewall" "db-firewall" {
-  name = "db-firewall"
-  network = google_compute_network.vpc_network.name
-  allow {
-    protocol = "icmp"
-  }
+# DB firewall
+resource "google_compute_firewall" "db-rules" {
+  project     = "sincere-signal-361922"
+  name        = "db-firewall-rule"
+  network     = google_compute_network.vpc_network.name
+  description = "Creates firewall rule targeting tagged instances"
+
   allow {
     protocol = "tcp"
-    ports = ["5432"]
+    ports    = ["22","5432"]
   }
   source_ranges = ["0.0.0.0/0"]
   target_tags = ["db"]
