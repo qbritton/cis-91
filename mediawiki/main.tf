@@ -92,6 +92,17 @@ resource "google_compute_disk" "database" {
   }
 }
 
+# Firewall allowing health check
+resource "google_compute_firewall" "default-firewall" {
+  name = "default-firewall"
+  network = google_compute_network.vpc_network.name
+  allow {
+    protocol = "tcp"
+    ports = ["22", "80", "3000", "5000"]
+  }
+  source_ranges = ["0.0.0.0/0"]
+} 
+
 # Web firewall
 resource "google_compute_firewall" "rules" {
   project     = "sincere-signal-361922"
@@ -130,6 +141,7 @@ resource "google_compute_health_check" "webservers" {
   check_interval_sec = 1
 
   http_health_check {
+    request_path = "/health.html"
     port = 80
   }
 }

@@ -6,7 +6,17 @@
     - mediawiki-vars.yaml
   tags:
     - install
-  tasks:  
+  tasks: 
+    - name: Create a ext4 filesystem for lab09
+      community.general.filesystem:
+        fstype: ext4
+        dev: /dev/disk/by-id/google-database  
+    - name: Mount extra disk
+      ansible.posix.mount:
+        path: /var/lib/postgresql
+        src: /dev/disk/by-id/google-database
+        fstype: ext4
+        state: mounted  
     - name: Install packages 
       ansible.builtin.apt:
         update_cache: yes
@@ -141,3 +151,8 @@
         dest: /var/www/html/LocalSettings.php
         content: "{{ hostvars[groups['gcp_name_web0'][0]]['localsettings']['content'] | b64decode }}"
       when: hostvars[groups['gcp_name_web0'][0]]['localsettings'] is defined
+    - name: Create the health check file. 
+      copy:
+        dest: /var/www/html/health.html
+        content: |
+          I'm alive
